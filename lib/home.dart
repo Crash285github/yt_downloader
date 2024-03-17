@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:yt_downloader/video_item.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onSubmitted: search,
             );
           }
-          return Text(videos[index - 1].title);
+          return VideoItem(video: videos[index - 1]);
         },
         itemCount: videos.length + 1,
       ),
