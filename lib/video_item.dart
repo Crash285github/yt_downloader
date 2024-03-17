@@ -1,5 +1,7 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:yt_downloader/downloader.dart';
 
 class VideoItem extends StatelessWidget {
   final Video video;
@@ -62,7 +64,13 @@ class VideoItem extends StatelessWidget {
                   Row(
                     children: [
                       TextButton.icon(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final String? dir =
+                              await FilePicker.platform.getDirectoryPath();
+                          if (dir == null) return;
+
+                          Downloader.downloadVideo(video, dir);
+                        },
                         icon: const Icon(Icons.video_file_outlined),
                         label: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -79,7 +87,49 @@ class VideoItem extends StatelessWidget {
                         ),
                       ),
                       TextButton.icon(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final String? dir =
+                              await FilePicker.platform.getDirectoryPath();
+                          if (dir == null) return;
+
+                          Downloader.downloadAudio(video, dir).then((value) {
+                            if (value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.background,
+                                  content: Text(
+                                    "Downloaded ${video.title}",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onBackground),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.background,
+                                  content: Text(
+                                    "Failed: ${video.title}",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onBackground),
+                                  ),
+                                ),
+                              );
+                            }
+                          });
+                        },
                         icon: const Icon(Icons.audio_file_outlined),
                         label: Padding(
                           padding: const EdgeInsets.all(8.0),
