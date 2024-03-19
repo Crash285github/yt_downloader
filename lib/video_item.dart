@@ -61,7 +61,7 @@ class VideoItem extends StatelessWidget {
                   const SizedBox(
                     height: 32,
                   ),
-                  Row(
+                  Wrap(
                     children: [
                       TextButton.icon(
                         onPressed: () async {

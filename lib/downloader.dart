@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:yt_downloader/home.dart';
 
 class Downloader {
   static final YoutubeExplode _yt = YoutubeExplode();
@@ -26,12 +28,15 @@ class Downloader {
           .replaceAll('|', "")
           .replaceAll('/', "");
 
-      IOSink audioFileStream = File("$directory/$title.flac").openWrite();
+      IOSink audioFileStream =
+          File("$directory/$title.${HomeScreen.mp3 ? "mp3" : "flac"}")
+              .openWrite();
 
       await audioStream.pipe(audioFileStream);
       await audioFileStream.flush();
       await audioFileStream.close();
-    } on Exception {
+    } catch (e) {
+      log(e.toString());
       return false;
     }
 
@@ -64,7 +69,8 @@ class Downloader {
       await muxedStream.pipe(muxedFileStream);
       await muxedFileStream.flush();
       await muxedFileStream.close();
-    } on Exception {
+    } catch (e) {
+      log(e.toString());
       return false;
     }
 
