@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:yt_downloader/home.dart';
 
+enum FileType { mp4, mp3, flac }
+
 class Downloader {
   static final YoutubeExplode _yt = YoutubeExplode();
 

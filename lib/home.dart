@@ -58,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         onSubmitted: search,
                       ),
-                      const AudioSwitch()
                     ],
                   ),
                 );
@@ -178,34 +177,5 @@ class _HomeScreenState extends State<HomeScreen> {
         videos.addAll(gotVideos);
       });
     }
-  }
-}
-
-class AudioSwitch extends StatefulWidget {
-  const AudioSwitch({
-    super.key,
-  });
-
-  @override
-  State<AudioSwitch> createState() => _AudioSwitchState();
-}
-
-class _AudioSwitchState extends State<AudioSwitch> {
-  bool _mp3 = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Switch(
-            value: _mp3,
-            onChanged: (value) => setState(() {
-                  _mp3 = value;
-                  HomeScreen.mp3 = value;
-                })),
-        Text(_mp3 ? 'Audio: MP3' : 'Audio: FLAC')
-      ],
-    );
   }
 }
