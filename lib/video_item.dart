@@ -3,9 +3,75 @@ import 'package:flutter/material.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:yt_downloader/downloader.dart';
 
-class VideoItem extends StatelessWidget {
+class VideoItem extends StatefulWidget {
   final Video video;
   const VideoItem({super.key, required this.video});
+
+  @override
+  State<VideoItem> createState() => _VideoItemState();
+}
+
+class _VideoItemState extends State<VideoItem> {
+  bool downloading = false;
+
+  Future<void> downloadVideo() async {
+    final String? dir = await FilePicker.platform.getDirectoryPath();
+    if (dir == null) return;
+
+    setState(() => downloading = true);
+    bool succ = false;
+    try {
+      succ = await Downloader.downloadVideo(widget.video, dir);
+    } finally {
+      setState(() => downloading = false);
+    }
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        content: Text(
+          succ
+              ? "Downloaded ${widget.video.title}"
+              : "Failed: ${widget.video.title}",
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge!
+              .copyWith(color: Theme.of(context).colorScheme.onSurface),
+        ),
+      ),
+    );
+  }
+
+  Future<void> downloadAudio() async {
+    final String? dir = await FilePicker.platform.getDirectoryPath();
+    if (dir == null) return;
+
+    setState(() => downloading = true);
+    bool succ = false;
+    try {
+      succ = await Downloader.downloadAudio(widget.video, dir);
+    } finally {
+      setState(() => downloading = false);
+    }
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        content: Text(
+          succ
+              ? "Downloaded ${widget.video.title}"
+              : "Failed: ${widget.video.title}",
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge!
+              .copyWith(color: Theme.of(context).colorScheme.onSurface),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +100,7 @@ class VideoItem extends StatelessWidget {
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Image.network(
-                  video.thumbnails.mediumResUrl,
+                  widget.video.thumbnails.mediumResUrl,
                 ),
               ),
             ),
@@ -44,17 +110,17 @@ class VideoItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    video.title,
+                    widget.video.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   Text(
-                    video.author,
+                    widget.video.author,
                     style: Theme.of(context).textTheme.titleMedium!.copyWith(
                           color: Theme.of(context)
                               .colorScheme
-                              .onBackground
+                              .onSurface
                               .withOpacity(.4),
                         ),
                   ),
@@ -63,88 +129,49 @@ class VideoItem extends StatelessWidget {
                   ),
                   Wrap(
                     children: [
-                      TextButton.icon(
-                        onPressed: () async {
-                          final String? dir =
-                              await FilePicker.platform.getDirectoryPath();
-                          if (dir == null) return;
-
-                          Downloader.downloadVideo(video, dir);
-                        },
-                        icon: const Icon(Icons.video_file_outlined),
-                        label: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            "Download video",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.surfaceTint,
-                                ),
+                      if (downloading)
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      if (!downloading)
+                        TextButton.icon(
+                          onPressed: downloadVideo,
+                          icon: const Icon(Icons.video_file_outlined),
+                          label: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "Download video",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceTint,
+                                  ),
+                            ),
                           ),
                         ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () async {
-                          final String? dir =
-                              await FilePicker.platform.getDirectoryPath();
-                          if (dir == null) return;
-
-                          Downloader.downloadAudio(video, dir).then((value) {
-                            if (value) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.background,
-                                  content: Text(
-                                    "Downloaded ${video.title}",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onBackground),
+                      if (!downloading)
+                        TextButton.icon(
+                          onPressed: downloadAudio,
+                          icon: const Icon(Icons.audio_file_outlined),
+                          label: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "Download audio",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceTint,
                                   ),
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.background,
-                                  content: Text(
-                                    "Failed: ${video.title}",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onBackground),
-                                  ),
-                                ),
-                              );
-                            }
-                          });
-                        },
-                        icon: const Icon(Icons.audio_file_outlined),
-                        label: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            "Download audio",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.surfaceTint,
-                                ),
+                            ),
                           ),
-                        ),
-                      )
+                        )
                     ],
                   )
                 ],
