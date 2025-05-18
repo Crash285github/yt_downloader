@@ -47,19 +47,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 const EdgeInsets.symmetric(vertical: 64.0, horizontal: 32.0),
             itemBuilder: (context, index) {
               if (index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 32.0),
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      label: const Text('Search for a video or playlist'),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                          onPressed: () => search(_controller.text),
-                          icon: const Icon(Icons.search)),
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Switch(
+                          value: HomeScreen.mp3,
+                          onChanged: (value) =>
+                              setState(() => HomeScreen.mp3 = value),
+                        ),
+                        Text(
+                          "Audio: ${HomeScreen.mp3 ? "mp3" : "flac"}",
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        )
+                      ],
                     ),
-                    onSubmitted: search,
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 32.0),
+                      child: TextField(
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          label: const Text('Search for a video or playlist'),
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                              onPressed: () => search(_controller.text),
+                              icon: const Icon(Icons.search)),
+                        ),
+                        onSubmitted: search,
+                      ),
+                    ),
+                  ],
                 );
               }
               return VideoItem(video: videos[index - 1]);

@@ -37,8 +37,9 @@ class Downloader {
       await audioStream.pipe(audioFileStream);
       await audioFileStream.flush();
       await audioFileStream.close();
-    } catch (e) {
+    } catch (e, s) {
       log(e.toString());
+      log(s.toString());
       return false;
     }
 
